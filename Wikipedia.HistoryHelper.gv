@@ -1,0 +1,247 @@
+// Title.......: DOT diagram of History Helper
+// Summary.....: Dot diagram reflecting HistoryHelper structure and lyfecycle
+// Created.....: April 30, 2022 
+// Authors.....: Alex A. Davronov <al.neodim@gmail.com> (2022-)
+// Repository..: N/A
+// Description.: DOT language diagram that thoroughly describes 
+// Usage.......: dot -O -Tsvg *.gv
+
+digraph "Wikipedia History Script Graph" {
+    graph [
+        label="Wikipedia HistoryHelper Plugin (v2.6.5) © May 2022 Alexander A.D.\nmade with graphviz dot language.\nmeta.date, Ryazan, Russia"
+        splines=true
+        bgcolor="#22262d"
+        color=white
+        fontcolor=white
+        fontname="systemui,lato,Sans-serif"
+        pack=false
+    ]
+
+    node  [ shape=Mrecord 
+        fontcolor=white 
+        color=white 
+        fontname="systemui,lato,Sans-serif"
+    ]
+    edge  [ arrowtails=diamond 
+        fontcolor=white 
+        color=white 
+        fontname="systemui,lato,Sans-serif"
+    ]
+
+    subgraph cluster_Classes {
+        label="Classes hierarchy" 
+        graph [ rankdir=TB ]
+        edge  [ dir=back arrowtail=diamond color=white ] 
+        color="#91ff00"
+        Object [
+            label = <{
+            <b>Class: Object</b>
+            | ...
+            }>
+        ]
+
+        Map [
+            label = <{
+            <b>Class: Map</b>
+            | ...
+            }>
+        ]
+
+        Array [
+            label = <{
+            <b>Class: Array</b>
+            | ...
+            }>
+        ]
+
+        
+        HH [
+            style="bold"
+            label = <{
+            <b>Class: HH</b>
+            |{|A primary class that handles all logic.}
+            |+<b>public</b>  options
+            |+<b>static</b>  constructor(toolbar, revisions, ...)
+            |+<b>static</b>  revisionsToDiffs()
+            |+<b>static</b>  revisionsToLinks()
+            |+<b>static</b>  revisionsToTable()
+            }>
+        ]
+
+        Toolbar [
+            label = <{
+            <b>Class: Toolbar</b>
+            |+<b>static</b>  constructor(buttons, ...)
+            |+add()
+            |+addMany()
+            }>
+        ]
+
+        Revisions [
+            label = <{
+            <b>Class: Revisions</b>
+            |+<b>public</b>  property
+            |+<b>static</b>  constructor(entries,parentEL)...
+            |{
+                +<b>static</b>  fromEl() | Main method used to wrap<br/> all history li elements into Entry or EntryCB
+            }
+            }>
+        ]
+
+        Revisions2 [
+            label = <{
+            <b>Class: Revisions2</b>
+            |+<b>public</b>  property
+            |+<b>static</b>  init(entries)
+            }>
+        ]
+
+        Contributions [
+            label = <{
+            <b>Class: Contributions</b>
+            |+<b>public</b>  property
+            |+<b>static</b>  init(entries)
+            }>
+        ]
+
+        //node [ shape=record ]
+        Entry [
+            label = <{
+            <b>Class: Entry</b>
+            |{|Wrapper around &lt;li&gt; history entry.}
+            |+<b>static</b>  constructor(htmlElement)
+            }>
+        ]
+
+        EntryCB [
+            label = <{
+            <b>Class: EntryCB</b>
+            |+isChecked()
+            }>
+        ]
+
+        //node [ shape=record ]
+        ClipboardBuffer [
+            label = <{
+            <b>Class: ClipboardBuffer</b>
+            |...
+            }>
+        ]
+
+        Object -> Array -> Revisions -> Revisions2 -> Contributions
+        Object -> Entry -> EntryCB
+        Object -> Map -> Toolbar
+        Object -> HH
+
+        { rank=same; Array; Map }
+        { rank=same; Revisions; Entry }
+        { rank=same; Toolbar; Revisions2; EntryCB }
+        { rank=same; HH; ClipboardBuffer }
+        { rank=same; Contributions }
+    }
+
+    subgraph cluster_Mediawiki {
+        label="Mediawiki Libraries"
+        node [ shape=record ]
+        // rank=same;
+        ButtonWidget [
+            URL="https://doc.wikimedia.org/oojs-ui/master/js/#!/api/OO.ui.ButtonWidget"
+            label = <{
+            <b>Class: OO.ui.ButtonGroupWidget</b>
+            |...
+            }>
+        ]
+
+        PopupButtonWidget [
+            URL="https://doc.wikimedia.org/oojs-ui/master/js/#!/api/OO.ui.PopupButtonWidget"
+            label = <{
+            <b>Class: OO.ui.PopupButtonWidget</b>
+            |{| Popup (mouseover preview) widget}
+            }>
+        ]
+        
+    }
+
+    interaction [ label="User input\n(mouse etc.)" shape=box ]
+    document [ label="html document:\nhttps://xx.wikipedia.org" shape="underline" ]
+
+
+    subgraph cluster_lifecycle {
+        label="Script lifecycle"
+        graph [ rankdir=TB ]
+        color="#ff5837"
+        
+        HTMLRawhistory [ label="rawRevisions = document \> ul \> li..." ]
+        
+        toolbar [ label="toolbar = new Toolbar()" ]
+        hh [ label="hh = new HH(toolbar, revisions, ... )" style="bold" color="green" ]
+
+
+ 
+        button
+        popupButton [
+            label="popupButton\n= new PopupButtonWidget(...)"
+            shape="box"
+        ]
+        clipboardBuffer [
+            label="clipboard\n= new ClipboardBuffer(...) "
+            shape="box"
+        ]
+        ClipboardBuffer -> clipboardBuffer [ dir=back color="#9799ff" ]
+        
+        // Cycle
+        button
+
+        // Toolbar and popup
+        Toolbar           -> toolbar   [ dir=back color="#9799ff" ]
+        ButtonWidget      -> button         [ dir=back color="#9799ff" ]
+        PopupButtonWidget -> popupButton    [ dir=back label="button = new ...GroupWidget(...)\n = new ...ButtonWidget(...)\n= new MessageWidget" color="#9799ff" ]
+        
+        button            -> toolbar
+        popupButton       -> toolbar
+        clipboardBuffer   -> popupButton
+        
+
+
+
+        subgraph cluster_cycle_revisions {
+            label=""
+            color=yellow
+            rank=""
+ 
+            contribs_OR_Revisions [ label="OR" shape=diamond ]
+            revisions     [ label="revisions\n= new  Revisions2.fromEl(..., new EntryCB())" ]
+            contributions [ label="revisions\n= new  Contributions.fromEl(..., new EntryCB())" ]
+
+            Revisions2        -> revisions      [ dir=back color="#9799ff" ]
+            Contributions     -> contributions  [ dir=back color="#9799ff" ]
+            
+            EntryCB           -> revisions     [ dir=back label="if (Article Revisions)" ]
+            EntryCB           -> contributions [ dir=back label="if (Contributions)" ]
+
+        }
+
+        revisions     -> contribs_OR_Revisions
+        contributions -> contribs_OR_Revisions
+
+        HH -> hh
+
+        toolbar  -> hh [ arrowhead=vee ]
+        document -> HTMLRawhistory -> hh [ arrowhead=vee ]
+        
+        // Update
+        contribs_OR_Revisions -> hh
+        hh -> popupButton [ label="Update\npopup-widget content" color="green" ]
+        // toolbar -> HTMLRawhistory [ label="Update\n document entries"  ]
+    }
+
+    
+
+    interaction -> contribs_OR_Revisions [ label="Update\ncheckboxes" ]
+    interaction -> button    [ arrowhead=dot ]
+    hh -> "Document <script src=... >\nmain" [ dir=back label=Call ]
+    hh -> clipboardBuffer [ color="green" ]
+    // toolbar
+    
+
+}
