@@ -1,0 +1,36 @@
+{
+	"root": true,
+	"files": [
+		"src/**/*.{tsx,jsx,js,ts}"
+	],
+	"ignorePatterns": [],
+	"extends": [
+		"eslint:recommended",
+		"plugin:@typescript-eslint/recommended",
+		"plugin:@typescript-eslint/recommended-requiring-type-checking"
+	],
+	"parser": "@typescript-eslint/parser",
+	"plugins": [
+		"@typescript-eslint"
+	],
+	"parserOptions": {
+		"ecmaVersion": 6,
+		"sourceType": "module",
+		"project": [
+			"./tsconfig.json"
+		]
+	},
+	"rules": {
+		"@typescript-eslint/naming-convention": "warn",
+		"@typescript-eslint/semi": "warn",
+		"curly": "warn",
+		"eqeqeq": "warn",
+		"no-throw-literal": "warn",
+		"semi": "off",
+		"camelcase": "error",
+		"comma-style": [
+			"error",
+			"first"
+		]
+	}
+}
