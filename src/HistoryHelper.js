@@ -1,5 +1,5 @@
-// Version       : 2.6.6
-// Last-modified : May 24, 2023
+// Version       : 2.6.7
+// Last-modified :  August 07, 2023
 // Author        : Alexander Davronov
 // Description   : Toolbar for copying diff entries from revision/contributions
 //                 pages history on Wikipedia
@@ -309,13 +309,13 @@ $(function() {
 			return this
 		} // checkboxesCleanUp end
 		/**
-		 * I'm helper that wraps up HTMLElement children into Entries
+		 * Helper to map HTMLElement children of revisions into Entries
 		 * @param {HTMLElement} rawRevisions - An element whose children are going to be wrapped by Entry
 		 * @param {Object} opt - Options for Revisions
 		 * @param {Object} C   - Context for Revisions
 		 * @param {Wiki.Revisions.Entry} Entry - Entry constructor
 		 * @param {Object} Eopt - For Entry    - Options for Entry
-		 * @param {Object} EC
+		 * @param {Object} EC - Wiki UI native checkbox widget
 		 * @returns Revisions
 		 */
 		static fromEl(rawRevisions, opt, C, Entry, Eopt, EC) {
@@ -551,7 +551,6 @@ $(function() {
 				this.comment = commentEl.textContent.replace(/[\(\→]/g, "")
 
 			}
-
 		}
 	};
 
@@ -961,7 +960,12 @@ $(function() {
 				if (entry && new Object(entry.date).constructor == Wiki.Date) {
 					entry.date = entry.date.format();
 				}
-				wikitext += `[[Special:Diff/${entry.oldid}|[${entry.date}]]]`
+				// Omit prev
+				let diff = entry.oldid;
+				if(diff == "prev") {
+					diff = entry.diff
+				}
+				wikitext += `[[Special:Diff/${diff}|[${entry.date}]]]`
 			}
 			return wikitext
 
@@ -1059,10 +1063,12 @@ $(function() {
 	// ---------------------------------------------------------------------------
 	// #MAIN
 	// ---------------------------------------------------------------------------
-
 	let main = function main() {
-		if (mw.config.get(`wgIsArticle`)) {
-			return;
+		let contribPageRe = /Special:Contributions/
+		let isContributionsPage = contribPageRe.test(window.location.href);
+		let isHistoryPage = new URL(window.location).searchParams.get("action") == "history";
+		if (!(isContributionsPage || isHistoryPage)) {
+			return
 		}
 
 		// Initialize toolbar & buttons
@@ -1115,7 +1121,6 @@ $(function() {
 		let clipboard = new ClipboardBuffer();
 		// Article or User history page
 		// https://www.mediawiki.org/wiki/Manual:Interface/JavaScript#mw.config
-		let isHistoryPage = mw.config.get(`wgAction`) === `history`;
 		if (isHistoryPage) {
 
 			let rawRevisions = Array.from(pagehistory.querySelectorAll(`ul > li`));

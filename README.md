@@ -34,6 +34,15 @@ By default HH higlights some uncivil words (see line 839 for a fill list). You c
      /(liar){1,2}|pants|on fire/ig
     ];
 ```
+## Limitations
+
+### I18n
+Currently this plugin doesn't international wikipedias (i.e. outside of en.wikipedia.orgdomain). Date locales may be parsed wrongly or with errors. 
+
+## Security and Legal Statement
+> _See also [LICENSE](./LICENSE)_
+
+The plugin is open source and free of charge. It doesn't gather, store, or send any sensetive information. It never accesses your cookies, neither it tries to obtain any sensetive data via fake dialogs etc. Checkout the source code to make sure there is no suspicious code before using this plugin.
 
 
 ## Development
@@ -42,8 +51,20 @@ The plugin is written in JavaScript. The following [dot graph] approximates a sc
 
 [dot graph]: "https://www.graphviz.org/"
 
+### Script overview
+On wikipedia page the script maps button actions into copying entries from the current page's revisions. Revisions are kept in an array class `Revisions`.
+
+The main class is `HH`. It keeps actions map that maps UI button events into specific actions to be performed over `Revisions` instance (i.e. formatting & copying diff links into the system clipboard upon click)
+
+When run, the script performs several steps:
+* It maps DOM html revisions tree into a `Revisions` class
+* Which further wraps every sub-entry (`<li>...<li/>` element) into `Entry` class
+* Adds MediaWiki `ButtonWidget`-based UI buttons
+
+
+### TODO
+* Fetch revisions from wikipedia DATA/DB API.
 
 -----
 > Created-at: September 10, 2022</br>
-> Modified-at: Wed, 24 May 2023 16:11:29 +0300
-
+> Modified-at: August 13, 2023

@@ -1,12 +1,11 @@
 {
 	"private": true,
 	"name": "history-helper",
-	"version": "2.6.6",
+	"version": "2.6.7",
 	"description": "HistoryHelper plugin for Wikipedia",
 	"repo": "github:hinell/historyhelper-wikipedia",
 	"main": "src/HistoryHelper.js",
 	"scripts": {
-		"test": "echo \"Error: no test specified\" && exit 1"
 	},
 	"keywords": [
 		"wikipedia",
